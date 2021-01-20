@@ -48,9 +48,11 @@ where
 
             advance(
                 graph,
+                end,
                 frontier,
                 &mut forward_frontier,
                 &mut forward_reached,
+                &backward_frontier,
                 &backward_reached,
                 &mut solution,
             );
@@ -59,9 +61,11 @@ where
 
             advance(
                 graph,
+                end,
                 frontier,
                 &mut backward_frontier,
                 &mut backward_reached,
+                &forward_frontier,
                 &forward_reached,
                 &mut solution,
             );
@@ -78,9 +82,11 @@ where
 
 fn advance<'n, N, C>(
     graph: &StateGraph<'n, N, C>,
-    mut frontier: SearchResult<'n, N, C>,
+    end: &'n N,
+    frontier: SearchResult<'n, N, C>,
     current_frontier: &mut BinaryHeap<Reverse<SearchResult<'n, N, C>>>,
     current_reached: &mut HashMap<&'n N, C>,
+    other_frontier: &BinaryHeap<Reverse<SearchResult<'n, N, C>>>,
     other_reached: &HashMap<&'n N, C>,
     solution: &mut Option<SearchResult<'n, N, C>>,
 ) where
@@ -94,13 +100,6 @@ fn advance<'n, N, C>(
             .map(|stored_cost| child_cost < *stored_cost)
             .unwrap_or(true)
         {
-            current_reached.insert(child, child_cost);
-            current_frontier.push(Reverse(SearchResult {
-                node: child,
-                cost: child_cost,
-                path: frontier.path.drain(..).chain(iter::once(*child)).collect(),
-            }));
-
             match other_reached.get(child) {
                 Some(other_cost)
                     if solution
@@ -108,15 +107,41 @@ fn advance<'n, N, C>(
                         .map(|s| child_cost + *other_cost < s.cost)
                         .unwrap_or(true) =>
                 {
-                    // TODO: Fix
                     *solution = Some(SearchResult {
-                        node: child,
+                        node: end,
                         cost: child_cost + *other_cost,
-                        path: Vec::new(),
+                        path: frontier
+                            .path
+                            .iter()
+                            .copied()
+                            .chain(
+                                other_frontier
+                                    .iter()
+                                    .find(|Reverse(f)| f.node == *child)
+                                    .unwrap()
+                                    .0
+                                    .path
+                                    .iter()
+                                    .copied()
+                                    .rev(),
+                            )
+                            .collect(),
                     })
                 }
                 _ => {}
             }
+
+            current_reached.insert(child, child_cost);
+            current_frontier.push(Reverse(SearchResult {
+                node: child,
+                cost: child_cost,
+                path: frontier
+                    .path
+                    .iter()
+                    .copied()
+                    .chain(iter::once(*child))
+                    .collect(),
+            }));
         }
     }
 }
