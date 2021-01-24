@@ -12,11 +12,11 @@ pub fn bidirectional_best_first<'n, N, C, F>(
     start: &'n N,
     end: &'n N,
     accept_solution: F,
-) -> Option<SearchResult<'n, N, C>>
+) -> Option<SearchResult<&'n N, C>>
 where
     N: Eq + Hash,
     C: Ord + HasZero + PartialOrd + Add<Output = C> + Copy,
-    F: Fn(&SearchResult<'n, N, C>) -> bool,
+    F: Fn(&SearchResult<&'n N, C>) -> bool,
 {
     let mut forward_frontier = BinaryHeap::new();
     forward_frontier.push(Reverse(SearchResult {
@@ -83,12 +83,12 @@ where
 fn advance<'n, N, C>(
     graph: &StateGraph<'n, N, C>,
     end: &'n N,
-    frontier: SearchResult<'n, N, C>,
-    current_frontier: &mut BinaryHeap<Reverse<SearchResult<'n, N, C>>>,
+    frontier: SearchResult<&'n N, C>,
+    current_frontier: &mut BinaryHeap<Reverse<SearchResult<&'n N, C>>>,
     current_reached: &mut HashMap<&'n N, C>,
-    other_frontier: &BinaryHeap<Reverse<SearchResult<'n, N, C>>>,
+    other_frontier: &BinaryHeap<Reverse<SearchResult<&'n N, C>>>,
     other_reached: &HashMap<&'n N, C>,
-    solution: &mut Option<SearchResult<'n, N, C>>,
+    solution: &mut Option<SearchResult<&'n N, C>>,
 ) where
     N: Eq + Hash,
     C: Ord + Add<Output = C> + Copy,

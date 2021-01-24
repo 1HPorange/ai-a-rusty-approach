@@ -9,7 +9,7 @@ pub fn breadth_first<'n, N, C, G>(
     graph: &StateGraph<'n, N, C>,
     start: &'n N,
     is_goal_state: G,
-) -> Option<SearchResult<'n, N, C>>
+) -> Option<SearchResult<&'n N, C>>
 where
     N: Eq + Hash,
     C: HasZero + Add<Output = C> + Copy,

@@ -6,7 +6,7 @@ pub fn depth_first<'n, N, C, G>(
     start: &'n N,
     depth_limit: Option<usize>,
     is_goal_state: G,
-) -> Option<SearchResult<'n, N, C>>
+) -> Option<SearchResult<&'n N, C>>
 where
     N: Eq + Hash,
     C: HasZero + Add<Output = C> + Copy,

@@ -23,13 +23,13 @@ impl HasZero for u16 {
     }
 }
 
-pub struct SearchResult<'n, N, C> {
-    pub node: &'n N,
+pub struct SearchResult<N, C> {
+    pub node: N,
     pub cost: C,
-    pub path: Vec<&'n N>,
+    pub path: Vec<N>,
 }
 
-impl<'n, N, C> PartialEq for SearchResult<'n, N, C>
+impl<N, C> PartialEq for SearchResult<N, C>
 where
     C: PartialEq,
 {
@@ -38,9 +38,9 @@ where
     }
 }
 
-impl<'n, N, C> Eq for SearchResult<'n, N, C> where C: Eq {}
+impl<N, C> Eq for SearchResult<N, C> where C: Eq {}
 
-impl<'n, N, C> PartialOrd for SearchResult<'n, N, C>
+impl<N, C> PartialOrd for SearchResult<N, C>
 where
     C: PartialOrd,
 {
@@ -49,7 +49,7 @@ where
     }
 }
 
-impl<'n, N, C> Ord for SearchResult<'n, N, C>
+impl<N, C> Ord for SearchResult<N, C>
 where
     C: Ord,
 {

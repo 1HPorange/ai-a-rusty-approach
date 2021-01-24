@@ -12,12 +12,12 @@ pub fn best_first<'n, N, C, G, H>(
     start: &'n N,
     is_goal_state: G,
     heuristic: H,
-) -> Option<SearchResult<'n, N, C>>
+) -> Option<SearchResult<&'n N, C>>
 where
     N: Eq + Hash,
     C: Ord + HasZero + PartialOrd + Add<Output = C> + Copy,
     G: Fn(&'n N) -> bool,
-    H: Fn(&SearchResult<'n, N, C>) -> isize,
+    H: Fn(&SearchResult<&'n N, C>) -> isize,
 {
     let mut frontier = BinaryHeap::new();
     let first = SearchResult {
