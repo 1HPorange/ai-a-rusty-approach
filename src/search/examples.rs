@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::state_graph::{StateGraph, StateGraphEdges};
 
 pub static ORADEA: &'static str = "Oradea";
@@ -73,4 +75,31 @@ pub fn generate_romania_roadmap() -> StateGraph<'static, &'static str, u16> {
             (&IASI, &NEAMT, 87),
         ]),
     )
+}
+
+pub fn generate_romania_straigh_line_distance_to_bucharest() -> HashMap<&'static str, u16> {
+    vec![
+        (ARAD, 366),
+        (BUCHAREST, 0),
+        (CRAIOVA, 160),
+        (DROBETA, 242),
+        (EFORIE, 161),
+        (FAGARAS, 176),
+        (GIURGIU, 77),
+        (HIRSOVA, 151),
+        (IASI, 226),
+        (LUGOJ, 244),
+        (MEHADIA, 241),
+        (NEAMT, 234),
+        (ORADEA, 380),
+        (PITESTI, 100),
+        (RIMNICU_VILCEA, 193),
+        (SIBIU, 253),
+        (TIMISOARA, 329),
+        (URZICENI, 80),
+        (VASLUI, 199),
+        (ZERIND, 374),
+    ]
+    .into_iter()
+    .collect()
 }

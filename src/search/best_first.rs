@@ -7,27 +7,30 @@ use std::{
     ops::Add,
 };
 
-pub fn best_first<'n, N, C, G>(
+pub fn best_first<'n, N, C, G, H>(
     graph: &StateGraph<'n, N, C>,
     start: &'n N,
     is_goal_state: G,
+    heuristic: H,
 ) -> Option<SearchResult<'n, N, C>>
 where
     N: Eq + Hash,
     C: Ord + HasZero + PartialOrd + Add<Output = C> + Copy,
     G: Fn(&'n N) -> bool,
+    H: Fn(&SearchResult<'n, N, C>) -> isize,
 {
     let mut frontier = BinaryHeap::new();
-    frontier.push(Reverse(SearchResult {
+    let first = SearchResult {
         node: start,
         cost: C::zero(),
         path: vec![start],
-    }));
+    };
+    frontier.push((Reverse(heuristic(&first)), first));
 
     let mut reached = HashMap::new();
     reached.insert(start, C::zero());
 
-    while let Some(Reverse(parent)) = frontier.pop() {
+    while let Some((_, parent)) = frontier.pop() {
         if is_goal_state(parent.node) {
             return Some(parent);
         }
@@ -39,8 +42,8 @@ where
                 Some(stored_cost) => {
                     if *stored_cost > cost {
                         *stored_cost = cost;
-                        frontier.push(Reverse(SearchResult {
-                            node: child_node,
+                        let candidate = SearchResult {
+                            node: *child_node,
                             cost,
                             path: parent
                                 .path
@@ -48,13 +51,14 @@ where
                                 .copied()
                                 .chain(iter::once(*child_node))
                                 .collect(),
-                        }));
+                        };
+                        frontier.push((Reverse(heuristic(&candidate)), candidate));
                     }
                 }
                 None => {
                     reached.insert(child_node, cost);
-                    frontier.push(Reverse(SearchResult {
-                        node: child_node,
+                    let candidate = SearchResult {
+                        node: *child_node,
                         cost,
                         path: parent
                             .path
@@ -62,7 +66,8 @@ where
                             .copied()
                             .chain(iter::once(*child_node))
                             .collect(),
-                    }));
+                    };
+                    frontier.push((Reverse(heuristic(&candidate)), candidate));
                 }
             }
         }

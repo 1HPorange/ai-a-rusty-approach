@@ -6,7 +6,7 @@ fn main() {
     println!("From {} to {} via", ARAD, BUCHAREST);
 
     print!("- Best-first: ");
-    match best_first(&romania, &ARAD, |s| *s == BUCHAREST) {
+    match best_first(&romania, &ARAD, |s| *s == BUCHAREST, |s| s.cost as isize) {
         Some(SearchResult { cost, path, .. }) => println!("{} {:?}", cost, path),
         None => println!("No path found"),
     }
