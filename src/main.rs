@@ -6,25 +6,25 @@ fn main() {
     println!("From {} to {} via", ARAD, BUCHAREST);
 
     print!("- Best-first: ");
-    match best_first(&romania, &ARAD, |s| *s == BUCHAREST, |s| s.cost as isize) {
+    match best_first(&romania, &ARAD, |s| s == BUCHAREST, |s| s.cost as isize) {
         Some(SearchResult { cost, path, .. }) => println!("{} {:?}", cost, path),
         None => println!("No path found"),
     }
 
     print!("- Breadth-first: ");
-    match breadth_first(&romania, &ARAD, |s| *s == BUCHAREST) {
+    match breadth_first(&romania, &ARAD, |s| s == BUCHAREST) {
         Some(SearchResult { cost, path, .. }) => println!("{} {:?}", cost, path),
         None => println!("No path found"),
     }
 
     print!("- Depth-first: ");
-    match depth_first(&romania, &ARAD, None, |s| *s == BUCHAREST) {
+    match depth_first(&romania, &ARAD, None, |s| s == BUCHAREST) {
         Some(SearchResult { cost, path, .. }) => println!("{} {:?}", cost, path),
         None => println!("No path found"),
     }
 
     print!("- Iterative-deepening: ");
-    match iterative_deepening(&romania, &ARAD, None, |s| *s == BUCHAREST) {
+    match iterative_deepening(&romania, &ARAD, None, |s| s == BUCHAREST) {
         Some(SearchResult { cost, path, .. }) => println!("{} {:?}", cost, path),
         None => println!("No path found"),
     }

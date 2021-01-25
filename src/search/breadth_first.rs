@@ -5,15 +5,15 @@ use std::{
     ops::Add,
 };
 
-pub fn breadth_first<'n, N, C, G>(
-    graph: &StateGraph<'n, N, C>,
-    start: &'n N,
+pub fn breadth_first<N, C, G>(
+    graph: &StateGraph<N, C>,
+    start: N,
     is_goal_state: G,
-) -> Option<SearchResult<&'n N, C>>
+) -> Option<SearchResult<N, C>>
 where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy + Clone,
     C: HasZero + Add<Output = C> + Copy,
-    G: Fn(&'n N) -> bool,
+    G: Fn(N) -> bool,
 {
     if is_goal_state(start) {
         return Some(SearchResult {
@@ -28,11 +28,11 @@ where
         .iter()
         .map(|node| {
             (
-                node,
+                *node,
                 SearchResult {
-                    node,
+                    node: *node,
                     cost: C::zero(),
-                    path: vec![node],
+                    path: vec![*node],
                 },
             )
         })
@@ -42,7 +42,7 @@ where
     node_queue.push_back(start);
 
     while let Some(parent) = node_queue.pop_front() {
-        let parent_state = &reached[parent];
+        let parent_state = &reached[&parent];
         let parent_cost = parent_state.cost;
         let parent_path = parent_state.path.clone();
 
@@ -52,18 +52,18 @@ where
                 cost: parent_cost + *cost,
                 path: {
                     let mut new_path = parent_path.clone();
-                    new_path.push(child);
+                    new_path.push(*child);
                     new_path
                 },
             };
 
-            if is_goal_state(child) {
+            if is_goal_state(*child) {
                 return Some(child_state);
             }
 
             *reached.get_mut(child).unwrap() = child_state;
 
-            node_queue.push_back(child);
+            node_queue.push_back(*child);
         }
     }
 

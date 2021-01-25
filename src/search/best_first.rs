@@ -7,17 +7,17 @@ use std::{
     ops::Add,
 };
 
-pub fn best_first<'n, N, C, G, H>(
-    graph: &StateGraph<'n, N, C>,
-    start: &'n N,
+pub fn best_first<N, C, G, H>(
+    graph: &StateGraph<N, C>,
+    start: N,
     is_goal_state: G,
     heuristic: H,
-) -> Option<SearchResult<&'n N, C>>
+) -> Option<SearchResult<N, C>>
 where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy,
     C: Ord + HasZero + PartialOrd + Add<Output = C> + Copy,
-    G: Fn(&'n N) -> bool,
-    H: Fn(&SearchResult<&'n N, C>) -> isize,
+    G: Fn(N) -> bool,
+    H: Fn(&SearchResult<N, C>) -> isize,
 {
     let mut frontier = BinaryHeap::new();
     let first = SearchResult {
@@ -36,7 +36,7 @@ where
         }
 
         for (child_node, cost) in graph.edges.get_outgoing(parent.node).unwrap() {
-            let cost = *cost + reached[parent.node];
+            let cost = *cost + reached[&parent.node];
 
             match reached.get_mut(child_node) {
                 Some(stored_cost) => {
@@ -56,7 +56,7 @@ where
                     }
                 }
                 None => {
-                    reached.insert(child_node, cost);
+                    reached.insert(*child_node, cost);
                     let candidate = SearchResult {
                         node: *child_node,
                         cost,

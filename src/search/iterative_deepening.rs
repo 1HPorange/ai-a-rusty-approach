@@ -2,16 +2,16 @@ use super::{depth_first, state_graph::StateGraph, HasZero, SearchResult};
 use std::hash::Hash;
 use std::ops::Add;
 
-pub fn iterative_deepening<'n, N, C, G>(
-    graph: &StateGraph<'n, N, C>,
-    start: &'n N,
+pub fn iterative_deepening<N, C, G>(
+    graph: &StateGraph<N, C>,
+    start: N,
     depth_limit: Option<usize>,
     is_goal_state: G,
-) -> Option<SearchResult<&'n N, C>>
+) -> Option<SearchResult<N, C>>
 where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy,
     C: HasZero + Add<Output = C> + Copy,
-    G: Fn(&'n N) -> bool,
+    G: Fn(N) -> bool,
 {
     let mut max_depth = 0;
 

@@ -7,16 +7,16 @@ use std::{
     ops::Add,
 };
 
-pub fn bidirectional_best_first<'n, N, C, F>(
-    graph: &StateGraph<'n, N, C>,
-    start: &'n N,
-    end: &'n N,
+pub fn bidirectional_best_first<N, C, F>(
+    graph: &StateGraph<N, C>,
+    start: N,
+    end: N,
     accept_solution: F,
-) -> Option<SearchResult<&'n N, C>>
+) -> Option<SearchResult<N, C>>
 where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy,
     C: Ord + HasZero + PartialOrd + Add<Output = C> + Copy,
-    F: Fn(&SearchResult<&'n N, C>) -> bool,
+    F: Fn(&SearchResult<N, C>) -> bool,
 {
     let mut forward_frontier = BinaryHeap::new();
     forward_frontier.push(Reverse(SearchResult {
@@ -80,17 +80,17 @@ where
     None
 }
 
-fn advance<'n, N, C>(
-    graph: &StateGraph<'n, N, C>,
-    end: &'n N,
-    frontier: SearchResult<&'n N, C>,
-    current_frontier: &mut BinaryHeap<Reverse<SearchResult<&'n N, C>>>,
-    current_reached: &mut HashMap<&'n N, C>,
-    other_frontier: &BinaryHeap<Reverse<SearchResult<&'n N, C>>>,
-    other_reached: &HashMap<&'n N, C>,
-    solution: &mut Option<SearchResult<&'n N, C>>,
+fn advance<N, C>(
+    graph: &StateGraph<N, C>,
+    end: N,
+    frontier: SearchResult<N, C>,
+    current_frontier: &mut BinaryHeap<Reverse<SearchResult<N, C>>>,
+    current_reached: &mut HashMap<N, C>,
+    other_frontier: &BinaryHeap<Reverse<SearchResult<N, C>>>,
+    other_reached: &HashMap<N, C>,
+    solution: &mut Option<SearchResult<N, C>>,
 ) where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy,
     C: Ord + Add<Output = C> + Copy,
 {
     for (child, step_cost) in graph.edges.get_outgoing(frontier.node).unwrap() {
@@ -131,9 +131,9 @@ fn advance<'n, N, C>(
                 _ => {}
             }
 
-            current_reached.insert(child, child_cost);
+            current_reached.insert(*child, child_cost);
             current_frontier.push(Reverse(SearchResult {
-                node: child,
+                node: *child,
                 cost: child_cost,
                 path: frontier
                     .path

@@ -1,16 +1,16 @@
 use super::{state_graph::StateGraph, HasZero, SearchResult};
 use std::{hash::Hash, iter, ops::Add};
 
-pub fn depth_first<'n, N, C, G>(
-    graph: &StateGraph<'n, N, C>,
-    start: &'n N,
+pub fn depth_first<N, C, G>(
+    graph: &StateGraph<N, C>,
+    start: N,
     depth_limit: Option<usize>,
     is_goal_state: G,
-) -> Option<SearchResult<&'n N, C>>
+) -> Option<SearchResult<N, C>>
 where
-    N: Eq + Hash,
+    N: Eq + Hash + Copy,
     C: HasZero + Add<Output = C> + Copy,
-    G: Fn(&'n N) -> bool,
+    G: Fn(N) -> bool,
 {
     let mut frontier = vec![SearchResult {
         node: start,

@@ -46,9 +46,9 @@ static ROMANIAN_CITIES: &'static [&'static str] = &[
     NEAMT,
 ];
 
-pub fn generate_romania_roadmap() -> StateGraph<'static, &'static str, u16> {
+pub fn generate_romania_roadmap() -> StateGraph<&'static str, u16> {
     StateGraph::new(
-        ROMANIAN_CITIES,
+        Vec::from(ROMANIAN_CITIES),
         StateGraphEdges::from_bidirectional(&[
             (&ORADEA, &ZERIND, 71),
             (&ZERIND, &ARAD, 75),

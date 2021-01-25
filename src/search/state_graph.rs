@@ -1,13 +1,13 @@
 use std::{cmp::Ordering, collections::HashMap, hash::Hash};
 
-pub struct StateGraph<'n, N, C> {
+pub struct StateGraph<N, C> {
     _private: (),
-    pub nodes: &'n [N],
-    pub edges: StateGraphEdges<'n, N, C>,
+    pub nodes: Vec<N>,
+    pub edges: StateGraphEdges<N, C>,
 }
 
-impl<'n, N, C> StateGraph<'n, N, C> {
-    pub fn new(nodes: &'n [N], edges: StateGraphEdges<'n, N, C>) -> StateGraph<'n, N, C>
+impl<N, C> StateGraph<N, C> {
+    pub fn new(nodes: Vec<N>, edges: StateGraphEdges<N, C>) -> StateGraph<N, C>
     where
         N: PartialEq,
     {
@@ -40,14 +40,14 @@ impl<'n, N, C> StateGraph<'n, N, C> {
 }
 
 #[derive(Debug)]
-pub struct StateGraphEdges<'n, N, C> {
-    node_edges: HashMap<&'n N, HashMap<&'n N, C>>,
+pub struct StateGraphEdges<N, C> {
+    node_edges: HashMap<N, HashMap<N, C>>,
 }
 
-impl<'n, N, C> StateGraphEdges<'n, N, C> {
-    pub fn from_bidirectional(transitions: &[(&'n N, &'n N, C)]) -> StateGraphEdges<'n, N, C>
+impl<N, C> StateGraphEdges<N, C> {
+    pub fn from_bidirectional(transitions: &[(N, N, C)]) -> StateGraphEdges<N, C>
     where
-        N: Eq + Hash,
+        N: Eq + Hash + Copy,
         C: PartialOrd + Copy,
     {
         let mut node_edges: HashMap<_, HashMap<_, C>> = HashMap::new();
@@ -60,16 +60,16 @@ impl<'n, N, C> StateGraphEdges<'n, N, C> {
         Self { node_edges }
     }
 
-    pub fn get_outgoing(&self, node: &'n N) -> Option<impl Iterator<Item = (&&'n N, &C)>>
+    pub fn get_outgoing(&self, node: N) -> Option<impl Iterator<Item = (&N, &C)>>
     where
         N: Eq + Hash,
     {
-        self.node_edges.get(node).map(|dst| dst.iter())
+        self.node_edges.get(&node).map(|dst| dst.iter())
     }
 
-    pub fn get_incoming(&'n self, node: &'n N) -> impl Iterator<Item = (&&'n N, &C)> + 'n
+    pub fn get_incoming(&self, node: N) -> impl Iterator<Item = (&N, &C)>
     where
-        N: PartialEq,
+        N: PartialEq + Copy,
     {
         self.node_edges.iter().flat_map(move |(src, dsts)| {
             dsts.iter()
@@ -78,13 +78,9 @@ impl<'n, N, C> StateGraphEdges<'n, N, C> {
         })
     }
 
-    fn insert_edge(
-        node_edges: &mut HashMap<&'n N, HashMap<&'n N, C>>,
-        src: &'n N,
-        dst: &'n N,
-        cost: C,
-    ) where
-        N: Eq + Hash,
+    fn insert_edge(node_edges: &mut HashMap<N, HashMap<N, C>>, src: N, dst: N, cost: C)
+    where
+        N: Eq + Hash + Copy,
         C: PartialOrd + Copy,
     {
         node_edges
